@@ -7,9 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "debug.h"
-#include <sys/wait.h> // for WEXITSTATUS macro
-#include <unistd.h>   // for getpid() function
-#include <stdio.h>    // for perror() function
+
 
 struct {
   struct spinlock lock;
