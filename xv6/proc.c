@@ -7,6 +7,9 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "debug.h"
+#include <sys/wait.h> // for WEXITSTATUS macro
+#include <unistd.h>   // for getpid() function
+#include <stdio.h>    // for perror() function
 
 struct {
   struct spinlock lock;
@@ -247,6 +250,23 @@ exit(void)
       curproc->ofile[fd] = 0;
     }
   }
+void
+exit(int status)
+{
+  struct proc *curproc = myproc();
+  struct proc *p;
+  int fd;
+
+  if(curproc == initproc)
+    panic("init exiting");
+
+  // Close all open files.
+  for(fd = 0; fd < NOFILE; fd++){
+    if(curproc->ofile[fd]){
+      fileclose(curproc->ofile[fd]);
+      curproc->ofile[fd] = 0;
+    }
+  }
 
   begin_op();
   iput(curproc->cwd);
@@ -305,6 +325,26 @@ wait(void)
         return pid;
       }
     }
+    int wait2(int *status) {
+    pid_t pid;
+    int exit_status;
+
+    // Wait for any child process to exit
+    pid = waitpid(-1, &exit_status, 0);
+
+    // Check if waitpid failed
+    if (pid == -1) {
+        perror("waitpid");
+        return -1;
+    }
+
+    // Update exit status if status pointer is provided
+    if (status != NULL) {
+        *status = WEXITSTATUS(exit_status);
+    }
+
+    return pid;
+}
 
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){
