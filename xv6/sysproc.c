@@ -92,22 +92,24 @@ sys_uptime(void)
   return xticks;
 }
 
-int
-sys_exit2(void)
-{
+int sys_exit2(void){
   int status;
 
-  if(argint(0, & status) < 0)
+  if(argint(0, &status) < 0)
     return -1;
   exit2(status);
-  return 0;  // 
+  return 0;
 }
 
-int sys_wait2(void)
-{
+int sys_wait2(void){
   int *status;
+  int addr;
 
-  if(argptr(0, (void*)&status, sizeof(*status)<0)
+  if(argint(0, &addr) < 0)
     return -1;
+    
+  status = (int*)addr;
+
   return wait2(status);
 }
+
