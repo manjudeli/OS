@@ -120,8 +120,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-void            exit2(int);
-int             wait2(int*);
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -157,6 +156,8 @@ int             argstr(int, char**);
 int             fetchint(uint, int*);
 int             fetchstr(uint, char**);
 void            syscall(void);
+void            exit2(int status);
+int             wait2(int *status);
 
 // timer.c
 void            timerinit(void);
