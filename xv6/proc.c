@@ -606,3 +606,53 @@ procdump(void)
     cprintf("\n");
   }
 }
+void
+exit2(int status)
+{
+  struct proc *curproc = myproc();
+  
+  curproc->xstate = status;
+  exit();
+}
+
+int
+wait2(int *status)
+{
+  struct proc *p;
+  int havekids, pid;
+  struct proc *curproc = myproc();
+    
+  acquire(&ptable.lock);
+  for(;;){
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != curproc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        pid = p->pid;
+        if(status != 0 && copyout(curproc->pgdir, (uint)status, &(p->xstate), sizeof(p->xstate)) < 0) {
+          release(&ptable.lock);
+          return -1;
+        }
+        kfree(p->kstack);
+        p->kstack = 0;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+    
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+    
+    sleep(curproc, &ptable.lock);
+  }
+}
+
