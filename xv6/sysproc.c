@@ -20,13 +20,11 @@ sys_exit(void)
   return 0;  // not reached
 }
 
-
 int
 sys_wait(void)
 {
   return wait();
 }
-
 
 int
 sys_kill(void)
@@ -92,7 +90,9 @@ sys_uptime(void)
   return xticks;
 }
 
-int sys_exit2(void){
+int
+sys_exit2(void)
+{
   int status;
 
   if(argint(0, &status) < 0)
@@ -101,7 +101,9 @@ int sys_exit2(void){
   return 0;
 }
 
-int sys_wait2(void){
+int
+sys_wait2(void)
+{
   int *status;
   int addr;
 
@@ -112,4 +114,3 @@ int sys_wait2(void){
 
   return wait2(status);
 }
-
